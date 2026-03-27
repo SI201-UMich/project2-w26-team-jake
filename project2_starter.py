@@ -29,6 +29,69 @@ def load_listing_results(html_path):
 
       
 def get_listing_details(listing_id):
+   filename = os.path.join("html_files", f"listing_{listing_id}.html")
+   with open(filename, 'r', encoding='utf-8-sig') as f:
+       content = f.read()
+   soup = BeautifulSoup(content, 'html.parser')
+  
+   # Policy Number
+   policy_number = "None"
+   policy_tag = soup.find('li', class_='f19phm7j')
+   if policy_tag:
+       text = policy_tag.get_text()
+       if "pending" in text.lower():
+           policy_number = "Pending"
+       elif "exempt" in text.lower():
+           policy_number = "Exempt"
+       elif ":" in text:
+           policy_number = text.split(':')[-1].strip()
+
+
+   #Host Type
+   if "Superhost" in content:
+       host_type = "Superhost" 
+   else:
+       host_type = "regular"
+
+
+   #Host Name
+   host_name = "None"
+   for h2 in soup.find_all('h2'):
+       if "Hosted by" in h2.get_text():
+           host_name = h2.get_text().replace("Hosted by ", "").strip()
+           break
+
+
+   #Room Type
+   subtitle_tag = soup.find('h2', class_='_14i3z6h')
+   subtitle = subtitle_tag.get_text() if subtitle_tag else ""
+  
+   if "Private" in subtitle:
+       room_type = "Private Room"
+   elif "Shared" in subtitle:
+       room_type = "Shared Room"
+   else:
+       room_type = "Entire Room"
+
+
+   #Location Rating
+   location_rating = 0.0
+   rating_rows = soup.find_all('div', class_='_a3qxec')
+   for row in rating_rows:
+       if "Location" in row.get_text():
+           rating_span = row.find('span', class_='_4oybiu')
+           if rating_span:
+               location_rating = float(rating_span.get_text().strip())
+               break
+              
+   return {listing_id: {
+       "policy_number": policy_number,
+       "host_type": host_type,
+       "host_name": host_name,
+       "room_type": room_type,
+       "location_rating": location_rating
+   }}
+
     
 
     
