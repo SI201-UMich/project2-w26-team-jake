@@ -167,10 +167,25 @@ def avg_location_rating_by_room_type(data):
 
    return averages_dict
 
-    
-
 
 def validate_policy_numbers(data):
+  
+   valid_pattern = r'^(20\d{2}-00\d{4}STR|STR-000\d{4})$'
+   invalid_listing_ids = []
+  
+   for row in data:
+     
+       listing_id = row[1]
+       policy_number = row[2]
+      
+       if policy_number in ["Pending", "Exempt"]:
+           continue
+      
+       if not re.match(valid_pattern, policy_number):
+           invalid_listing_ids.append(listing_id)
+          
+   return invalid_listing_ids
+
     
     
 
