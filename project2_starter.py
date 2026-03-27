@@ -186,10 +186,26 @@ def validate_policy_numbers(data):
           
    return invalid_listing_ids
 
-    
-    
 
 def google_scholar_searcher(query):
+   search_url = "https://scholar.google.com/scholar?q=" + query
+  
+   response = requests.get(search_url)
+  
+   soup = BeautifulSoup(response.text, 'html.parser')
+  
+   title_headers = soup.find_all('h3', class_='gs_rt')
+  
+   article_titles = []
+   for header in title_headers:
+      
+       title_text = header.get_text()
+       article_titles.append(title_text)
+      
+   return article_titles
+
+    
+
     
 
 class TestCases(unittest.TestCase):
