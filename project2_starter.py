@@ -92,10 +92,31 @@ def get_listing_details(listing_id):
        "location_rating": location_rating
    }}
 
-    
 
-    
 def create_listing_database(html_path):
+   listings = load_listing_results(html_path)
+   database = []
+  
+   for listing_title, listing_id in listings:
+      
+       details_hidden = get_listing_details(listing_id)
+       details = details_hidden[listing_id]
+      
+       listing_tuple = (
+           listing_title,
+           listing_id,
+           details['policy_number'],
+           details['host_type'],
+           details['host_name'],
+           details['room_type'],
+           details['location_rating']
+       )
+
+
+       database.append(listing_tuple)
+      
+   return database
+
     
 
 def output_csv(data, filename):
