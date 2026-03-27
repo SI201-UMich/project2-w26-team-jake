@@ -120,6 +120,25 @@ def create_listing_database(html_path):
     
 
 def output_csv(data, filename):
+   data.sort(key=lambda x: x[6], reverse=True)
+
+
+   header = [
+       "Listing Title",
+       "Listing ID",
+       "Policy Number",
+       "Host Type",
+       "Host Name",
+       "Room Type",
+       "Location Rating"
+   ]
+
+
+   with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
+       writer = csv.writer(f)
+       writer.writerow(header)
+       writer.writerows(data)
+
     
 
 def avg_location_rating_by_room_type(data):
