@@ -205,49 +205,91 @@ def google_scholar_searcher(query):
    return article_titles
 
     
-
-    
-
 class TestCases(unittest.TestCase):
-    def setUp(self):
-        
-        self.base_dir = os.path.abspath(os.path.dirname(__file__))
-        self.search_results_path = os.path.join(self.base_dir, "html_files", "search_results.html")
+   def setUp(self):
+      
+       self.base_dir = os.path.abspath(os.path.dirname(__file__))
+       self.search_results_path = os.path.join(self.base_dir, "html_files", "search_results.html")
 
-        self.listings = load_listing_results(self.search_results_path)
-        self.detailed_data = create_listing_database(self.search_results_path)
 
-    def test_load_listing_results(self):
-        
-       
+       self.listings = load_listing_results(self.search_results_path)
+       self.detailed_data = create_listing_database(self.search_results_path)
 
-    def test_get_listing_details(self):
-        html_list = ["467507", "1550913", "1944564", "4614763", "6092596"]
 
-        
+   def test_load_listing_results(self):
+      
+       self.assertEqual(len(self.listings), 18)
+       self.assertEqual(self.listings[0], ("Loft in Mission District", "1944564"))
 
-    def test_create_listing_database(self):
-       
-       
 
-    def test_output_csv(self):
-        
-        out_path = os.path.join(self.base_dir, "test.csv")
+   def test_get_listing_details(self):
+       html_list = ["467507", "1550913", "1944564", "4614763", "6092596"]
 
-        
-        os.remove(out_path)
 
-    def test_avg_location_rating_by_room_type(self):
-        
+       results = []
+       for l_id in html_list:
+           results.append(get_listing_details(l_id))
 
-    def test_validate_policy_numbers(self):
-        
+
+     
+       d467 = get_listing_details("467507")["467507"]
+       self.assertEqual(d467["policy_number"], "STR-0005349")
+
+
+      
+       d194 = get_listing_details("1944564")["1944564"]
+       self.assertEqual(d194["host_type"], "Superhost")
+       self.assertEqual(d194["room_type"], "Entire Room")
+
+
+       self.assertEqual(d194["location_rating"], 4.9)
+
+
+   def test_create_listing_database(self):
+     
+       for row in self.detailed_data:
+           self.assertEqual(len(row), 7)
+
+
+       expected_last = ("Guest suite in Mission District", "467507", "STR-0005349", "Superhost", "Jennifer", "Entire Room", 4.8)
+       self.assertEqual(self.detailed_data[-1], expected_last)
+
+
+   def test_output_csv(self):
+      
+       out_path = os.path.join(self.base_dir, "test.csv")
+
+
+       output_csv(self.detailed_data, out_path)
+      
+       rows = []
+       with open(out_path, 'r', encoding='utf-8-sig') as f:
+           reader = csv.reader(f)
+           for row in reader:
+               rows.append(row)
+
+
+       expected_first_row = ["Guesthouse in San Francisco", "49591060", "STR-0000253", "Superhost", "Ingrid", "Entire Room", "5.0"]
+       self.assertEqual(rows[1], expected_first_row)
+       os.remove(out_path)
+
+
+   def test_avg_location_rating_by_room_type(self):
+       averages = avg_location_rating_by_room_type(self.detailed_data)
+       self.assertEqual(averages.get("Private Room"), 4.9)
+
+
+   def test_validate_policy_numbers(self):
+       invalid_listings = validate_policy_numbers(self.detailed_data)
+       self.assertEqual(invalid_listings, ["16204265"])
+
 
 def main():
-    detailed_data = create_listing_database(os.path.join("html_files", "search_results.html"))
-    output_csv(detailed_data, "airbnb_dataset.csv")
+   detailed_data = create_listing_database(os.path.join("html_files", "search_results.html"))
+   output_csv(detailed_data, "airbnb_dataset.csv")
+
 
 
 if __name__ == "__main__":
-    main()
-    unittest.main(verbosity=2)
+   main()
+   unittest.main(verbosity=2)
