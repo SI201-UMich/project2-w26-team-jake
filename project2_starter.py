@@ -142,6 +142,31 @@ def output_csv(data, filename):
     
 
 def avg_location_rating_by_room_type(data):
+   room_sums = {}
+   room_counts = {}
+
+
+   for row in data:
+      
+       room_type = row[5]
+       location_rating = row[6]
+
+
+       if location_rating > 0.0:
+          
+           room_sums[room_type] = room_sums.get(room_type, 0.0) + location_rating
+           room_counts[room_type] = room_counts.get(room_type, 0) + 1
+
+
+   averages_dict = {}
+   for r_type in room_sums:
+      
+       average = room_sums[r_type] / room_counts[r_type]
+       averages_dict[r_type] = round(average, 1)
+
+
+   return averages_dict
+
     
 
 
